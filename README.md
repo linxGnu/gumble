@@ -1,2 +1,3 @@
 # gumble
-Collection of go utilities
+
+Collection of high-performance, thread-safe, lock-free go utilities.
