@@ -28,38 +28,40 @@ func TestNewNonBlockingCircuitBreaker(t *testing.T) {
 		t.Errorf("Invalid NewNonBlockingCircuitBreaker")
 	} else if _, err = NewNonBlockingCircuitBreaker(SystemTicker, &CircuitBreakerConfig{}); err == nil {
 		t.Errorf("Invalid NewNonBlockingCircuitBreaker")
-	} else {
-		name := &Name{Name: "dummy-breaker"}
-		validConfig := &CircuitBreakerConfig{
-			name:                    name,
-			failureRateThreshold:    0.7,
-			minimumRequestThreshold: 19,
-			trialRequestInterval:    time.Second,
-			circuitOpenWindow:       time.Second * 2,
-			counterSlidingWindow:    time.Second * 30,
-			counterUpdateInterval:   time.Second * 4,
-			listeners:               make(CircuitBreakerListeners, 2, 10),
-		}
+	}
+}
 
-		nbc, err := NewNonBlockingCircuitBreaker(SystemTicker, validConfig)
-		if err != nil || nbc == nil || nbc.config != validConfig || nbc.Name() != name || nbc.ticker != SystemTicker {
-			if err != nil {
-				t.Error(err)
-			} else {
-				t.Errorf("Invalid NewNonBlockingCircuitBreaker")
-			}
-		}
+func TestNewNonBlockingCircuitBreakerWithValidConfigs(t *testing.T) {
+	name := &Name{Name: "dummy-breaker"}
+	validConfig := &CircuitBreakerConfig{
+		name:                    name,
+		failureRateThreshold:    0.7,
+		minimumRequestThreshold: 19,
+		trialRequestInterval:    time.Second,
+		circuitOpenWindow:       time.Second * 2,
+		counterSlidingWindow:    time.Second * 30,
+		counterUpdateInterval:   time.Second * 4,
+		listeners:               make(CircuitBreakerListeners, 2, 10),
+	}
 
-		if validConfig.GetName() != name ||
-			validConfig.GetFailureRateThreshold() != 0.7 ||
-			validConfig.GetMinimumRequestThreshold() != 19 ||
-			validConfig.GetTrialRequestInterval() != time.Second ||
-			validConfig.GetCircuitOpenWindow() != 2*time.Second ||
-			validConfig.GetCounterSlidingWindow() != 30*time.Second ||
-			validConfig.GetCounterUpdateInterval() != 4*time.Second ||
-			len(validConfig.Getlisteners()) != 2 {
+	nbc, err := NewNonBlockingCircuitBreaker(SystemTicker, validConfig)
+	if err != nil || nbc == nil || nbc.config != validConfig || nbc.Name() != name || nbc.ticker != SystemTicker {
+		if err != nil {
+			t.Error(err)
+		} else {
 			t.Errorf("Invalid NewNonBlockingCircuitBreaker")
 		}
+	}
+
+	if validConfig.GetName() != name ||
+		validConfig.GetFailureRateThreshold() != 0.7 ||
+		validConfig.GetMinimumRequestThreshold() != 19 ||
+		validConfig.GetTrialRequestInterval() != time.Second ||
+		validConfig.GetCircuitOpenWindow() != 2*time.Second ||
+		validConfig.GetCounterSlidingWindow() != 30*time.Second ||
+		validConfig.GetCounterUpdateInterval() != 4*time.Second ||
+		len(validConfig.Getlisteners()) != 2 {
+		t.Errorf("Invalid NewNonBlockingCircuitBreaker")
 	}
 }
 

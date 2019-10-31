@@ -10,7 +10,6 @@ import (
 
 var (
 	maxNumberProducer = 8
-	maxNumberConsumer = 8
 	numberEle         = 10000
 )
 

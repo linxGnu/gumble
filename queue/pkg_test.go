@@ -2,10 +2,8 @@ package queue
 
 import (
 	"context"
-	"fmt"
 	"sync"
 	"testing"
-	"time"
 )
 
 func testProducer(t *testing.T, queue Queue) {
@@ -55,13 +53,6 @@ func testProducer(t *testing.T, queue Queue) {
 }
 
 func testMix(t *testing.T, q Queue, numberProducer, numberConsumer int) {
-	if numberProducer > maxNumberProducer {
-		numberProducer = maxNumberProducer
-	}
-	if numberConsumer > maxNumberConsumer {
-		numberConsumer = maxNumberConsumer
-	}
-
 	for i := 0; i < numberProducer; i++ {
 		go func(producer int) {
 			for j := 0; j < numberEle; j++ {
@@ -70,72 +61,19 @@ func testMix(t *testing.T, q Queue, numberProducer, numberConsumer int) {
 		}(i)
 	}
 
-	ch := make(chan *ele, 100000)
-	var wg sync.WaitGroup
+	ch := make(chan *ele, 1000)
+
 	ctx, cancel := context.WithCancel(context.Background())
-
+	var wg sync.WaitGroup
 	for i := 0; i < numberConsumer; i++ {
 		wg.Add(1)
-		go func(ctx context.Context) {
-			for {
-				select {
-				case <-ctx.Done():
-					wg.Done()
-					return
-				default:
-					if item := q.Peek(); item != nil {
-						if q.IsEmpty() {
-							continue
-						}
-
-						if item = q.Poll(); item != nil {
-							ch <- item.(*ele)
-						}
-					}
-				}
-			}
-		}(ctx)
-	}
-
-	for i := 0; i < numberConsumer; i++ {
-		wg.Add(1)
-		go func(ctx context.Context) {
-			ct := 0
-			for {
-				select {
-				case <-ctx.Done():
-					if ct > 950 {
-						fmt.Println(ct)
-					}
-					wg.Done()
-					return
-				default:
-					var item interface{}
-					iter := q.Iterator()
-
-					if iter == nil {
-						time.Sleep(time.Second)
-						continue
-					}
-
-					counter := 0
-					for iter := q.Iterator(); iter.HasNext(); {
-						if item = iter.Next(); item != nil {
-							if counter++; counter > 100000 {
-								ct++
-								break
-							}
-						}
-					}
-				}
-			}
-		}(ctx)
+		go testConsumer(ctx, &wg, q, ch)
 	}
 
 	m := make(map[int]map[int]struct{})
-	for i := 0; i < maxNumberProducer*numberEle; i++ {
+	for i := 0; i < numberProducer*numberEle; i++ {
 		if polled := <-ch; polled == nil {
-			t.FailNow()
+			t.Fatal()
 		} else {
 			e := (*ele)(polled)
 			if _, ok := m[e.key]; !ok {
@@ -145,17 +83,40 @@ func testMix(t *testing.T, q Queue, numberProducer, numberConsumer int) {
 		}
 	}
 
-	for i := 0; i < maxNumberProducer; i++ {
+	for i := 0; i < numberProducer; i++ {
 		if len(m[i]) != numberEle {
-			t.FailNow()
+			t.Fatal(len(m[i]), numberEle)
 		}
 
 		for k := range m[i] {
 			if k < 0 || k >= numberEle {
-				t.FailNow()
+				t.Fatal()
 			}
 		}
 	}
+
 	cancel()
 	wg.Wait()
+}
+
+func testConsumer(ctx context.Context, wg *sync.WaitGroup, q Queue, ch chan *ele) {
+	defer wg.Done()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+
+		default:
+			if item := q.Peek(); item != nil {
+				if q.IsEmpty() {
+					continue
+				}
+
+				if item = q.Poll(); item != nil {
+					ch <- item.(*ele)
+				}
+			}
+		}
+	}
 }

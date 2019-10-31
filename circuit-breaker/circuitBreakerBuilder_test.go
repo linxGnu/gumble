@@ -11,10 +11,9 @@ func TestNewCircuitBreakerBuilder(t *testing.T) {
 	}
 }
 
-func TestSetBuilderProperties(t *testing.T) {
-	breakerName := &Name{Name: "dummy-breaker"}
+func TestBuilderSetFailureRate(t *testing.T) {
 	builder := NewCircuitBreakerBuilder()
-	builder.Name(breakerName)
+	builder.Name(&Name{Name: "dummy-breaker"})
 
 	// try to set FailureRateThreshold
 	validFailureRateThreshold := 0.5
@@ -27,6 +26,10 @@ func TestSetBuilderProperties(t *testing.T) {
 	} else if _, err = builder.SetFailureRateThreshold(validFailureRateThreshold).Build(); err != nil || builder.failureRateThreshold != validFailureRateThreshold {
 		t.Errorf("Fail to set FailureRateThreshold")
 	}
+}
+
+func TestBuilderSetMinimumRequestThreshold(t *testing.T) {
+	builder := NewCircuitBreakerBuilder()
 
 	// try to set MinimumRequestThreshold
 	var validMinimumRequestThreshold int64 = 123
@@ -34,6 +37,10 @@ func TestSetBuilderProperties(t *testing.T) {
 	if builder.minimumRequestThreshold != validMinimumRequestThreshold {
 		t.Errorf("Fail to set MinimumRequestThreshold")
 	}
+}
+
+func TestBuilderSetTrialRequestInterval(t *testing.T) {
+	builder := NewCircuitBreakerBuilder()
 
 	// try to set TrialRequestInterval
 	validTrialRequestInterval := time.Duration(23 * time.Second)
@@ -44,6 +51,10 @@ func TestSetBuilderProperties(t *testing.T) {
 	} else if _, err = builder.SetTrialRequestInterval(validTrialRequestInterval).Build(); err != nil || builder.trialRequestInterval != validTrialRequestInterval {
 		t.Errorf("Fail to set TrialRequestInterval")
 	}
+}
+
+func TestBuilderSetCircuitOpenWindow(t *testing.T) {
+	builder := NewCircuitBreakerBuilder()
 
 	// try to set CircuitOpenWindow
 	validCircuitOpenWindow := time.Duration(10 * time.Millisecond)
@@ -54,6 +65,10 @@ func TestSetBuilderProperties(t *testing.T) {
 	} else if _, err = builder.SetCircuitOpenWindow(validCircuitOpenWindow).Build(); err != nil || builder.circuitOpenWindow != validCircuitOpenWindow {
 		t.Errorf("Fail to set CircuitOpenWindow")
 	}
+}
+
+func TestBuilderSetCounterSlidingWindow(t *testing.T) {
+	builder := NewCircuitBreakerBuilder()
 
 	// try to set CounterSlidingWindow
 	validCounterSlidingWindow := time.Duration(11 * time.Second)
@@ -64,6 +79,10 @@ func TestSetBuilderProperties(t *testing.T) {
 	} else if _, err = builder.SetCounterSlidingWindow(validCounterSlidingWindow).Build(); err != nil || builder.counterSlidingWindow != validCounterSlidingWindow {
 		t.Errorf("Fail to set CounterSlidingWindow")
 	}
+}
+
+func TestBuilderSetCounterUpdateInterval(t *testing.T) {
+	builder := NewCircuitBreakerBuilder()
 
 	// try to set CounterUpdateInterval
 	validCounterUpdateInterval := time.Duration(9 * time.Second)
@@ -74,6 +93,10 @@ func TestSetBuilderProperties(t *testing.T) {
 	} else if _, err = builder.SetCounterUpdateInterval(validCounterUpdateInterval).Build(); err != nil || builder.counterUpdateInterval != validCounterUpdateInterval {
 		t.Errorf("Fail to set CounterUpdateInterval")
 	}
+}
+
+func TestBuilderAddListener(t *testing.T) {
+	builder := NewCircuitBreakerBuilder()
 
 	// try to add 4 listeners
 	builder.AddListener(nil)
@@ -82,50 +105,6 @@ func TestSetBuilderProperties(t *testing.T) {
 	builder.AddListener(&dummyCircuitBreakerListener{})
 	builder.AddListener(&dummyCircuitBreakerListener{})
 	builder.AddListener(nil)
-
-	// try to set ticker
-	if _, err := builder.SetTicker(nil).Build(); err == nil {
-		t.Errorf("Fail to set ticker")
-	} else if _, err = builder.SetTicker(SystemTicker).Build(); err != nil {
-		t.Error(err)
-	}
-
-	// invalid build
-	builder.SetCounterSlidingWindow(time.Second).SetCounterUpdateInterval(2 * time.Second)
-	if _, err := builder.Build(); err == nil {
-		t.Errorf("Fail to build")
-	}
-
-	// invalid build
-	builder.SetCounterSlidingWindow(time.Second).SetCounterUpdateInterval(time.Second)
-	if _, err := builder.Build(); err == nil {
-		t.Errorf("Fail to build")
-	}
-
-	// valid build
-	builder.SetCounterSlidingWindow(validCounterSlidingWindow)
-	builder.SetCounterUpdateInterval(validCounterUpdateInterval)
-	if cb, err := builder.Build(); err != nil || cb == nil {
-		t.Errorf("Fail to build")
-	} else {
-		ncb, _ := cb.(*NonBlockingCircuitBreaker)
-		if ncb.name != breakerName {
-			t.Errorf("Fail to build")
-			return
-		}
-
-		validConfig := ncb.config
-		if validConfig.GetName() != breakerName ||
-			validConfig.GetFailureRateThreshold() != validFailureRateThreshold ||
-			validConfig.GetMinimumRequestThreshold() != validMinimumRequestThreshold ||
-			validConfig.GetTrialRequestInterval() != validTrialRequestInterval ||
-			validConfig.GetCircuitOpenWindow() != validCircuitOpenWindow ||
-			validConfig.GetCounterSlidingWindow() != validCounterSlidingWindow ||
-			validConfig.GetCounterUpdateInterval() != validCounterUpdateInterval ||
-			len(validConfig.Getlisteners()) != 4 {
-			t.Errorf("Fail to build")
-		}
-	}
 }
 
 type dummyCircuitBreakerListener struct{}
