@@ -1,7 +1,6 @@
 package cbreaker
 
 import (
-	"fmt"
 	"testing"
 	"time"
 )
@@ -81,6 +80,4 @@ func TestCircuitBreakerConfig(t *testing.T) {
 		len(validConfig.Getlisteners()) != 2 {
 		t.Errorf("Invalid CircuitBreakerConfig")
 	}
-
-	fmt.Println(validConfig)
 }
