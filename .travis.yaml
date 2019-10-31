@@ -1,0 +1,16 @@
+dist: trusty
+sudo: required
+
+language: go
+
+go:
+  - "1.11"
+  - "1.12"
+  - "1.13"
+
+before_script:
+  - go get -u github.com/scryner/lfreequeue
+  - go get -u github.com/valyala/fastrand
+  - go get -u github.com/mattn/goveralls
+
+script: go test -v -race ./... && $HOME/gopath/bin/goveralls -service=travis-ci

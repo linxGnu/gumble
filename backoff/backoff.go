@@ -1,9 +1,11 @@
-package retry
+// Package backoff contains various backoff algorithms/strategies.
+package backoff
 
 import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync/atomic"
 )
 
 // Backoff control back off between attempts in a single retry operation.
@@ -15,7 +17,7 @@ type Backoff interface {
 // BackoffBuilder backoff builder
 type BackoffBuilder struct {
 	layer []interface{}
-	base  Backoff
+	base  atomic.Value // Backoff
 	spec  string
 }
 
@@ -60,11 +62,15 @@ func (b *BackoffBuilder) BaseBackoffSpec(spec string) *BackoffBuilder {
 // BaseBackoff set base backoff. Base backoff could be chaining
 // WithJitter and WithLimit number of attempts.
 func (b *BackoffBuilder) BaseBackoff(base Backoff) *BackoffBuilder {
-	b.base = base
+	if base != nil {
+		b.base.Store(base)
+	}
 	return b
 }
 
 // WithLimit wrap base backoff with limiting the number of attempts up to the specified value.
+//
+// Default: no limit
 func (b *BackoffBuilder) WithLimit(limit int) *BackoffBuilder {
 	b.layer = append(b.layer, &withLimit{limit})
 	return b
@@ -91,16 +97,26 @@ func (b *BackoffBuilder) WithJitterBound(minJitterRate, maxJitterRate float64) *
 	return b
 }
 
+func (b *BackoffBuilder) loadBase() Backoff {
+	base, _ := b.base.Load().(Backoff)
+	return base
+}
+
 // Build backoff
 func (b *BackoffBuilder) Build() (r Backoff, err error) {
-	if r = b.base; r == nil {
+	if r = b.loadBase(); r == nil {
 		// try to parse base from spec
 		if b.spec == "" {
 			err = fmt.Errorf("Base Backoff is required. Please provide it by")
-			return
-		} else if r, err = parseFromSpec(b.spec); err != nil {
+		} else {
+			r, err = parseFromSpec(b.spec)
+		}
+
+		if err != nil {
 			return
 		}
+
+		b.base.Store(r)
 	}
 
 	for _, layer := range b.layer {
