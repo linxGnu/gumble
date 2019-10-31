@@ -146,65 +146,84 @@ func parseFromSpec(spec string) (r Backoff, err error) {
 	key, values := spec[:index], spec[index+1:]
 	switch key {
 	case "exponential": // exponential=initialDelayMillis:maxDelayMillis:multiplier
-		splited := strings.Split(values, ":")
-		if len(splited) != 3 {
-			err = ErrInvalidSpecFormat
-			return
-		}
+		r, err = parseExponentialBackoff(values)
 
-		initialDelayMillis, maxDelayMillis, multiplier := DefaultInitialDelayMillis, DefaultMaxDelayMillis, DefaultMultiplier
-		if splited[0] != "" {
-			if initialDelayMillis, err = strconv.ParseInt(splited[0], 10, 64); err != nil {
-				return
-			}
-		}
-		if splited[1] != "" {
-			if maxDelayMillis, err = strconv.ParseInt(splited[1], 10, 64); err != nil {
-				return
-			}
-		}
-		if splited[2] != "" {
-			if multiplier, err = strconv.ParseFloat(splited[2], 64); err != nil {
-				return
-			}
-		}
-
-		r, err = NewExponentialBackoff(initialDelayMillis, maxDelayMillis, multiplier)
-		return
 	case "fixed": // fixed=delayMillis
-		delayMillis := DefaultDelayMillis
+		r, err = parseFixedBackoff(values)
 
-		if values != "" {
-			if delayMillis, err = strconv.ParseInt(values, 10, 64); err != nil {
-				return
-			}
-		}
-
-		r, err = NewFixedBackoff(delayMillis)
-		return
 	case "random": // random=minDelayMillis:maxDelayMillis
-		splited := strings.Split(values, ":")
-		if len(splited) != 2 {
-			err = ErrInvalidSpecFormat
+		r, err = parseRandomBackoff(values)
+
+	default:
+		err = ErrInvalidSpecFormat
+	}
+
+	return
+}
+
+// fixed=delayMillis
+func parseFixedBackoff(values string) (r Backoff, err error) {
+	delayMillis := DefaultDelayMillis
+
+	if values != "" {
+		if delayMillis, err = strconv.ParseInt(values, 10, 64); err != nil {
 			return
 		}
+	}
 
-		minDelayMillis, maxDelayMillis := DefaultMinDelayMillis, DefaultMaxDelayMillis
-		if splited[0] != "" {
-			if minDelayMillis, err = strconv.ParseInt(splited[0], 10, 64); err != nil {
-				return
-			}
-		}
-		if splited[1] != "" {
-			if maxDelayMillis, err = strconv.ParseInt(splited[1], 10, 64); err != nil {
-				return
-			}
-		}
+	r, err = NewFixedBackoff(delayMillis)
+	return
+}
 
-		r, err = NewRandomBackoff(minDelayMillis, maxDelayMillis)
+// random=minDelayMillis:maxDelayMillis
+func parseRandomBackoff(values string) (r Backoff, err error) {
+	splited := strings.Split(values, ":")
+	if len(splited) != 2 {
+		err = ErrInvalidSpecFormat
 		return
 	}
 
-	err = ErrInvalidSpecFormat
+	minDelayMillis, maxDelayMillis := DefaultMinDelayMillis, DefaultMaxDelayMillis
+	if splited[0] != "" {
+		if minDelayMillis, err = strconv.ParseInt(splited[0], 10, 64); err != nil {
+			return
+		}
+	}
+	if splited[1] != "" {
+		if maxDelayMillis, err = strconv.ParseInt(splited[1], 10, 64); err != nil {
+			return
+		}
+	}
+
+	r, err = NewRandomBackoff(minDelayMillis, maxDelayMillis)
+	return
+}
+
+// exponential=initialDelayMillis:maxDelayMillis:multiplier
+func parseExponentialBackoff(values string) (r Backoff, err error) {
+	splited := strings.Split(values, ":")
+	if len(splited) != 3 {
+		err = ErrInvalidSpecFormat
+		return
+	}
+
+	initialDelayMillis, maxDelayMillis, multiplier := DefaultInitialDelayMillis, DefaultMaxDelayMillis, DefaultMultiplier
+	if splited[0] != "" {
+		if initialDelayMillis, err = strconv.ParseInt(splited[0], 10, 64); err != nil {
+			return
+		}
+	}
+	if splited[1] != "" {
+		if maxDelayMillis, err = strconv.ParseInt(splited[1], 10, 64); err != nil {
+			return
+		}
+	}
+	if splited[2] != "" {
+		if multiplier, err = strconv.ParseFloat(splited[2], 64); err != nil {
+			return
+		}
+	}
+
+	r, err = NewExponentialBackoff(initialDelayMillis, maxDelayMillis, multiplier)
 	return
 }
