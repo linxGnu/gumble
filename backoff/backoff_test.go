@@ -137,27 +137,44 @@ func TestParseInvalidSpec(t *testing.T) {
 }
 
 func TestParseSpec(t *testing.T) {
-	if b, err := parseFromSpec("exponential=1:2:3"); err != nil {
-		t.Fatal(err)
-	} else if tmp := b.(*ExponentialBackoff); tmp.initialDelayMillis != 1 || tmp.maxDelayMillis != 2 || tmp.multiplier != 3 {
-		t.Fatal()
+	cases := []string{
+		"exponential=1:2:3",
+		"exponential=:201:3",
+		"exponential=::3",
+		"exponential=::",
 	}
 
-	if b, err := parseFromSpec("exponential=:201:3"); err != nil {
-		t.Fatal(err)
-	} else if tmp := b.(*ExponentialBackoff); tmp.initialDelayMillis != DefaultDelayMillis || tmp.maxDelayMillis != 201 || tmp.multiplier != 3 {
-		t.Fatal()
+	expectedinitialDelayMillis := []int64{
+		1,
+		DefaultDelayMillis,
+		DefaultDelayMillis,
+		DefaultDelayMillis,
 	}
 
-	if b, err := parseFromSpec("exponential=::3"); err != nil {
-		t.Fatal(err)
-	} else if tmp := b.(*ExponentialBackoff); tmp.initialDelayMillis != DefaultDelayMillis || tmp.maxDelayMillis != DefaultMaxDelayMillis || tmp.multiplier != 3 {
-		t.Fatal()
+	expectedMaxDelayMillis := []int64{
+		2,
+		201,
+		DefaultMaxDelayMillis,
+		DefaultMaxDelayMillis,
 	}
 
-	if b, err := parseFromSpec("exponential=::"); err != nil {
-		t.Fatal(err)
-	} else if tmp := b.(*ExponentialBackoff); tmp.initialDelayMillis != DefaultDelayMillis || tmp.maxDelayMillis != DefaultMaxDelayMillis || tmp.multiplier != DefaultMultiplier {
-		t.Fatal()
+	expectedMultipiler := []float64{
+		3,
+		3,
+		3,
+		DefaultMultiplier,
+	}
+
+	for i := range cases {
+		if b, err := parseFromSpec(cases[i]); err != nil {
+			t.Fatal(err)
+		} else {
+			tmp := b.(*ExponentialBackoff)
+			if tmp.initialDelayMillis != expectedinitialDelayMillis[i] ||
+				tmp.maxDelayMillis != expectedMaxDelayMillis[i] ||
+				tmp.multiplier != expectedMultipiler[i] {
+				t.Fatal()
+			}
+		}
 	}
 }
