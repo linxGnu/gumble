@@ -6,7 +6,7 @@ import (
 	"unsafe"
 )
 
-// JDKLinkedQueue jdk-based concurrent non blocking linked list queue
+// JDKLinkedQueue jdk-based concurrent non blocking linked-list queue
 type JDKLinkedQueue struct {
 	// The padding members 1 to 3 below are here to ensure each item is on a separate cache line.
 	// This prevents false sharing and hence improves performance.

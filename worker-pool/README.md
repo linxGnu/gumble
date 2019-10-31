@@ -11,7 +11,7 @@ import (
    "log"
    "runtime"
    
-   workerpool "git.linecorp.com/LINE-DevOps/go-utils.git/worker-pool"
+   workerpool "github.com/linxGnu/gumble/worker-pool"
 )
 
 // task closure

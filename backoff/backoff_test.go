@@ -1,7 +1,6 @@
-package retry
+package backoff
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -98,12 +97,10 @@ func TestBackoffBuilder(t *testing.T) {
 			for i := 0; i < 100; i++ {
 				d := b.NextDelayMillis(i)
 				if i < 5 && d != 123 {
-					fmt.Println(i, d)
 					t.FailNow()
 				}
 
-				if i >= 5 && d != -1 {
-					fmt.Println(i, d)
+				if i >= 5 && d >= 0 {
 					t.FailNow()
 				}
 			}
