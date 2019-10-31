@@ -155,10 +155,10 @@ func modulo(a, b uint, N uint) uint {
 		if b&1 == 0 {
 			t := modulo(a, b>>1, N)
 			return uint(uint64(t) * uint64(t) % uint64(N))
-		} else {
-			t := modulo(a, b>>1, N)
-			t = uint(uint64(t) * uint64(t) % uint64(N))
-			return uint(uint64(a) * uint64(t) % uint64(N))
 		}
+
+		t := modulo(a, b>>1, N)
+		t = uint(uint64(t) * uint64(t) % uint64(N))
+		return uint(uint64(a) * uint64(t) % uint64(N))
 	}
 }
