@@ -110,133 +110,56 @@ func TestBuilderFixedBackoffWithLimit(t *testing.T) {
 }
 
 func TestParseSpec(t *testing.T) {
-	if b, err := parseFromSpec("dummy"); err == nil || b != nil {
+	// test exponential
+	if _, err := parseFromSpec("exponential="); err != ErrInvalidSpecFormat {
 		t.FailNow()
 	}
 
-	{
-		// test exponential
-		if _, err := parseFromSpec("exponential="); err != ErrInvalidSpecFormat {
-			t.FailNow()
-		}
-
-		if _, err := parseFromSpec("exponential=1:"); err != ErrInvalidSpecFormat {
-			t.FailNow()
-		}
-
-		if _, err := parseFromSpec("exponential=1:2"); err != ErrInvalidSpecFormat {
-			t.FailNow()
-		}
-
-		if _, err := parseFromSpec("exponential=a:2:3"); err == nil {
-			t.FailNow()
-		}
-
-		if _, err := parseFromSpec("exponential=1:a:3"); err == nil {
-			t.FailNow()
-		}
-
-		if _, err := parseFromSpec("exponential=1:2:a"); err == nil {
-			t.FailNow()
-		}
-
-		if b, err := parseFromSpec("exponential=1:2:3"); err != nil {
-			t.Error(err)
-			t.FailNow()
-		} else if tmp := b.(*ExponentialBackoff); tmp.initialDelayMillis != 1 || tmp.maxDelayMillis != 2 || tmp.multiplier != 3 {
-			t.FailNow()
-		}
-
-		if b, err := parseFromSpec("exponential=:201:3"); err != nil {
-			t.Error(err)
-			t.FailNow()
-		} else if tmp := b.(*ExponentialBackoff); tmp.initialDelayMillis != DefaultDelayMillis || tmp.maxDelayMillis != 201 || tmp.multiplier != 3 {
-			t.FailNow()
-		}
-
-		if b, err := parseFromSpec("exponential=::3"); err != nil {
-			t.Error(err)
-			t.FailNow()
-		} else if tmp := b.(*ExponentialBackoff); tmp.initialDelayMillis != DefaultDelayMillis || tmp.maxDelayMillis != DefaultMaxDelayMillis || tmp.multiplier != 3 {
-			t.FailNow()
-		}
-
-		if b, err := parseFromSpec("exponential=::"); err != nil {
-			t.Error(err)
-			t.FailNow()
-		} else if tmp := b.(*ExponentialBackoff); tmp.initialDelayMillis != DefaultDelayMillis || tmp.maxDelayMillis != DefaultMaxDelayMillis || tmp.multiplier != DefaultMultiplier {
-			t.FailNow()
-		}
+	if _, err := parseFromSpec("exponential=1:"); err != ErrInvalidSpecFormat {
+		t.FailNow()
 	}
 
-	{
-		// test fixed
-		if b, err := parseFromSpec("fixed="); err != nil {
-			t.FailNow()
-		} else if tmp := b.(*FixedBackoff); tmp.delayMillis != DefaultDelayMillis {
-			t.FailNow()
-		}
-
-		// test fixed
-		if _, err := parseFromSpec("fixed=a"); err == nil {
-			t.FailNow()
-		}
-
-		if b, err := parseFromSpec("fixed=123"); err != nil {
-			t.FailNow()
-		} else if tmp := b.(*FixedBackoff); tmp.delayMillis != 123 {
-			t.FailNow()
-		}
+	if _, err := parseFromSpec("exponential=1:2"); err != ErrInvalidSpecFormat {
+		t.FailNow()
 	}
 
-	{
-		// test random
-		if _, err := parseFromSpec("random="); err != ErrInvalidSpecFormat {
-			t.FailNow()
-		}
+	if _, err := parseFromSpec("exponential=a:2:3"); err == nil {
+		t.FailNow()
+	}
 
-		if _, err := parseFromSpec("random=1"); err != ErrInvalidSpecFormat {
-			t.FailNow()
-		}
+	if _, err := parseFromSpec("exponential=1:a:3"); err == nil {
+		t.FailNow()
+	}
 
-		if _, err := parseFromSpec("random=1:2"); err != nil {
-			t.FailNow()
-		}
+	if _, err := parseFromSpec("exponential=1:2:a"); err == nil {
+		t.FailNow()
+	}
 
-		if _, err := parseFromSpec("random=a:2"); err == nil {
-			t.FailNow()
-		}
+	if b, err := parseFromSpec("exponential=1:2:3"); err != nil {
+		t.Error(err)
+		t.FailNow()
+	} else if tmp := b.(*ExponentialBackoff); tmp.initialDelayMillis != 1 || tmp.maxDelayMillis != 2 || tmp.multiplier != 3 {
+		t.FailNow()
+	}
 
-		if _, err := parseFromSpec("random=1:a"); err == nil {
-			t.FailNow()
-		}
+	if b, err := parseFromSpec("exponential=:201:3"); err != nil {
+		t.Error(err)
+		t.FailNow()
+	} else if tmp := b.(*ExponentialBackoff); tmp.initialDelayMillis != DefaultDelayMillis || tmp.maxDelayMillis != 201 || tmp.multiplier != 3 {
+		t.FailNow()
+	}
 
-		if b, err := parseFromSpec("random=:"); err != nil {
-			t.Error(err)
-			t.FailNow()
-		} else if tmp := b.(*RandomBackoff); tmp.minDelayMillis != DefaultMinDelayMillis || tmp.maxDelayMillis != DefaultMaxDelayMillis {
-			t.FailNow()
-		}
+	if b, err := parseFromSpec("exponential=::3"); err != nil {
+		t.Error(err)
+		t.FailNow()
+	} else if tmp := b.(*ExponentialBackoff); tmp.initialDelayMillis != DefaultDelayMillis || tmp.maxDelayMillis != DefaultMaxDelayMillis || tmp.multiplier != 3 {
+		t.FailNow()
+	}
 
-		if b, err := parseFromSpec("random=12:"); err != nil {
-			t.Error(err)
-			t.FailNow()
-		} else if tmp := b.(*RandomBackoff); tmp.minDelayMillis != 12 || tmp.maxDelayMillis != DefaultMaxDelayMillis {
-			t.FailNow()
-		}
-
-		if b, err := parseFromSpec("random=:1234"); err != nil {
-			t.Error(err)
-			t.FailNow()
-		} else if tmp := b.(*RandomBackoff); tmp.minDelayMillis != DefaultMinDelayMillis || tmp.maxDelayMillis != 1234 {
-			t.FailNow()
-		}
-
-		if b, err := parseFromSpec("random=12:1234"); err != nil {
-			t.Error(err)
-			t.FailNow()
-		} else if tmp := b.(*RandomBackoff); tmp.minDelayMillis != 12 || tmp.maxDelayMillis != 1234 {
-			t.FailNow()
-		}
+	if b, err := parseFromSpec("exponential=::"); err != nil {
+		t.Error(err)
+		t.FailNow()
+	} else if tmp := b.(*ExponentialBackoff); tmp.initialDelayMillis != DefaultDelayMillis || tmp.maxDelayMillis != DefaultMaxDelayMillis || tmp.multiplier != DefaultMultiplier {
+		t.FailNow()
 	}
 }
