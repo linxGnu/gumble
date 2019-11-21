@@ -8,8 +8,6 @@ go:
   - "1.13"
 
 before_script:
-  - go get -u github.com/scryner/lfreequeue
-  - go get -u github.com/valyala/fastrand
   - go get -u github.com/mattn/goveralls
 
-script: go test -race ./... && $HOME/gopath/bin/goveralls -service=travis-ci
+script: GO111MODULE=on go test -race ./... && $HOME/gopath/bin/goveralls -service=travis-ci
