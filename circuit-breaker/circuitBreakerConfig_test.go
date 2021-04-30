@@ -79,5 +79,7 @@ func TestCircuitBreakerConfig(t *testing.T) {
 		validConfig.GetCounterUpdateInterval() != 4*time.Second ||
 		len(validConfig.Getlisteners()) != 2 {
 		t.Errorf("Invalid CircuitBreakerConfig")
+	} else {
+		t.Logf("%s", validConfig)
 	}
 }

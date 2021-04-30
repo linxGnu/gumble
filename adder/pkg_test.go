@@ -5,8 +5,26 @@ import (
 	"testing"
 )
 
-var numRoutine = 4
-var delta = 300000
+var (
+	numRoutine = 4
+	delta      = 300000
+)
+
+func TestDefaultAdder(t *testing.T) {
+	if _, ok := DefaultAdder().(*JDKAdder); !ok {
+		t.Error("Invalid default adder expected")
+	}
+
+	if _, ok := DefaultFloat64Adder().(*JDKF64Adder); !ok {
+		t.Error("Invalid default adder expected")
+	}
+}
+
+func TestMaxCellsNormalize(t *testing.T) {
+	if normalizeMaxCell(1<<12) != 1<<11 || normalizeMaxCell(32) != 64 || normalizeMaxCell(100) != 100 {
+		t.FailNow()
+	}
+}
 
 func testAdderNotRaceInc(t *testing.T, ty Type) {
 	adder := NewLongAdder(ty)

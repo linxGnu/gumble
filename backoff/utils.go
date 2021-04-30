@@ -7,17 +7,10 @@ import (
 )
 
 const (
-	limit   = (1 << 31) - 1
 	limit64 = (1 << 63) - 1
 )
 
-// GetRandomInt get random int based on system time
-func GetRandomInt() int {
-	return int(fastrand.Uint32() & limit)
-}
-
-// GetRandomInt64 get random int64 based on system time
-func GetRandomInt64() (result int64) {
+func randomInt64() (result int64) {
 	result |= (int64(fastrand.Uint32()) << 32) & limit64
 	result |= int64(fastrand.Uint32())
 	return
@@ -32,11 +25,11 @@ func saturatedMultiply(left int64, right float64) int64 {
 
 func nextRandomInt64(bound int64) (result int64) {
 	if bound <= 0 {
-		return 0
+		return bound
 	}
 
 	mask := bound - 1
-	result = GetRandomInt64()
+	result = randomInt64()
 
 	if bound&mask == 0 {
 		result &= mask
@@ -44,7 +37,7 @@ func nextRandomInt64(bound int64) (result int64) {
 		u := result >> 1
 		for {
 			if result = u % bound; u < result-mask {
-				u = GetRandomInt64() >> 1
+				u = randomInt64() >> 1
 			} else {
 				break
 			}

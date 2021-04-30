@@ -5,15 +5,20 @@ import (
 	"sync/atomic"
 )
 
-var maxCells = runtime.NumCPU() << 2
+var maxCells int
 
 func init() {
-	if maxCells > (1 << 11) {
-		maxCells = (1 << 11)
-	}
+	maxCells = normalizeMaxCell(runtime.NumCPU() << 2)
+}
 
-	if maxCells < 64 {
-		maxCells = 64
+func normalizeMaxCell(v int) int {
+	switch {
+	case v > (1 << 11):
+		return (1 << 11)
+	case v < 64:
+		return 64
+	default:
+		return v
 	}
 }
 

@@ -29,14 +29,17 @@ func TestTask(t *testing.T) {
 }
 
 func TestNewPool(t *testing.T) {
-	pool := NewPool(nil, Option{ExpandableLimit: -1})
+	var ctx context.Context
+	pool := NewPool(ctx, Option{ExpandableLimit: -1})
 	if pool.opt.NumberWorker != numCPU || pool.opt.ExpandableLimit != 0 || pool.opt.ExpandedLifetime != time.Minute {
 		t.Fatal()
 	}
 }
 
 func TestPool(t *testing.T) {
-	pool := NewPool(nil, Option{})
+	var taskCtx context.Context // nil context
+
+	pool := NewPool(context.Background(), Option{})
 	pool.Start()
 
 	var wg sync.WaitGroup
@@ -55,11 +58,11 @@ func TestPool(t *testing.T) {
 					return nil, nil
 				})
 			} else {
-				tasks[i] = pool.ExecuteWithCtx(nil, func(c context.Context) (interface{}, error) {
+				tasks[i] = pool.ExecuteWithCtx(taskCtx, func(c context.Context) (interface{}, error) {
 					time.Sleep(2 * time.Millisecond)
 					return nil, nil
 				})
-				pool.TryExecuteWithCtx(nil, func(c context.Context) (interface{}, error) {
+				pool.TryExecuteWithCtx(context.Background(), func(c context.Context) (interface{}, error) {
 					time.Sleep(time.Millisecond)
 					return nil, nil
 				})
@@ -71,7 +74,9 @@ func TestPool(t *testing.T) {
 }
 
 func TestPoolWithExpandable(t *testing.T) {
-	pool := NewPool(nil, Option{ExpandableLimit: 2, ExpandedLifetime: 10 * time.Millisecond})
+	var taskCtx context.Context // nil context
+
+	pool := NewPool(context.Background(), Option{ExpandableLimit: 2, ExpandedLifetime: 10 * time.Millisecond})
 	pool.Start()
 
 	var wg sync.WaitGroup
@@ -90,11 +95,11 @@ func TestPoolWithExpandable(t *testing.T) {
 					return nil, nil
 				})
 			} else {
-				tasks[i] = pool.ExecuteWithCtx(nil, func(c context.Context) (interface{}, error) {
+				tasks[i] = pool.ExecuteWithCtx(context.Background(), func(c context.Context) (interface{}, error) {
 					time.Sleep(5 * time.Millisecond)
 					return nil, nil
 				})
-				pool.TryExecuteWithCtx(nil, func(c context.Context) (interface{}, error) {
+				pool.TryExecuteWithCtx(taskCtx, func(c context.Context) (interface{}, error) {
 					time.Sleep(5 * time.Millisecond)
 					return nil, nil
 				})
@@ -106,7 +111,7 @@ func TestPoolWithExpandable(t *testing.T) {
 }
 
 func TestCorrectness(t *testing.T) {
-	pool := NewPool(nil, Option{NumberWorker: runtime.NumCPU()})
+	pool := NewPool(context.Background(), Option{NumberWorker: runtime.NumCPU()})
 	pool.Start()
 
 	// Calculate (1^1 + 2^2 + 3^3 + ... + 1000000^1000000) modulo 1234567

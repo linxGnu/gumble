@@ -93,6 +93,12 @@ func TestBuilderSetCounterUpdateInterval(t *testing.T) {
 	} else if _, err = builder.SetCounterUpdateInterval(validCounterUpdateInterval).Build(); err != nil || builder.counterUpdateInterval != validCounterUpdateInterval {
 		t.Errorf("Fail to set CounterUpdateInterval")
 	}
+
+	if breaker, err := builder.SetTicker(SystemTicker).Build(); err != nil {
+		t.FailNow()
+	} else {
+		t.Logf("%s", breaker)
+	}
 }
 
 func TestBuilderAddListener(t *testing.T) {

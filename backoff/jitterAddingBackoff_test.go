@@ -32,7 +32,7 @@ func TestJitterAddingBackoff(t *testing.T) {
 	// fake backoff
 	if b, err := NewJitterAddingBackoff(&FixedBackoff{delayMillis: -1}, 0.5, 0.9); err != nil || b == nil {
 		t.FailNow()
-	} else if b.NextDelayMillis(2) != 0 {
+	} else if b.NextDelayMillis(2) >= 0 {
 		t.FailNow()
 	}
 

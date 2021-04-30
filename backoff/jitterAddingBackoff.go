@@ -32,7 +32,7 @@ func NewJitterAddingBackoff(delegate Backoff, minJitterRate, maxJitterRate float
 func (f *JitterAddingBackoff) NextDelayMillis(numAttemptsSoFar int) (nextDelay int64) {
 	tmp := f.delegate.NextDelayMillis(numAttemptsSoFar)
 	if tmp <= 0 {
-		return 0
+		return tmp
 	}
 
 	minJitter := tmp * int64(1+f.minJitterRate)

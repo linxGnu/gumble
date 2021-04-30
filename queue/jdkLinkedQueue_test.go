@@ -9,7 +9,7 @@ func TestJDKLinkedQueue_Producer(t *testing.T) {
 }
 
 func TestJDKLinkedQueue_Mix(t *testing.T) {
-	testMix(t, NewQueue(JDKLinkedQueueType), 50, 50)
+	testMix(t, DefaultQueue(), 50, 50)
 }
 
 type anonymousStruct struct {
