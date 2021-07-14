@@ -26,56 +26,65 @@ func main() {
 
 # Benchmark
 
-* Hardware: MacBookPro14,3
-* OS: macOS 10.14.6 (18G103)
-
 ```
 GO111MODULE=""
 GOARCH="amd64"
 GOBIN=""
+GOCACHE="/home/gnu/.cache/go-build"
+GOENV="/home/gnu/.config/go/env"
 GOEXE=""
 GOFLAGS=""
 GOHOSTARCH="amd64"
-GOHOSTOS="darwin"
+GOHOSTOS="linux"
+GOINSECURE=""
+GOMODCACHE="/home/gnu/workspace/go/pkg/mod"
 GONOPROXY=""
 GONOSUMDB=""
-GOOS="darwin"
-GOPATH="/Users/JP22782/workspace/go"
+GOOS="linux"
+GOPATH="/home/gnu/workspace/go"
 GOPRIVATE=""
 GOPROXY="https://proxy.golang.org,direct"
-GOROOT="/usr/local/Cellar/go/1.13.3/libexec"
+GOROOT="/home/gnu/workspace/goroot"
 GOSUMDB="sum.golang.org"
 GOTMPDIR=""
+GOTOOLDIR="/home/gnu/workspace/goroot/pkg/tool/linux_amd64"
+GOVCS=""
+GOVERSION="go1.16.6"
 GCCGO="gccgo"
 AR="ar"
-CC="clang"
-CXX="clang++"
+CC="gcc"
+CXX="g++"
 CGO_ENABLED="1"
-go.mod"
+GOMOD="/home/gnu/workspace/go/src/git.linecorp.com/LINE-DevOps/go-utils.git/go.mod"
 CGO_CFLAGS="-g -O2"
 CGO_CPPFLAGS=""
 CGO_CXXFLAGS="-g -O2"
 CGO_FFLAGS="-g -O2"
 CGO_LDFLAGS="-g -O2"
 PKG_CONFIG="pkg-config"
-GOGCCFLAGS="-fPIC -m64 -pthread -fno-caret-diagnostics -Qunused-arguments -fmessage-length=0 -fdebug-prefix-map=/var/folders/9m/_p6tsqzn1_d1d0rsrbwb_hb80000gp/T/go-build564245481=/tmp/go-build -gno-record-gcc-switches -fno-common"
+GOGCCFLAGS="-fPIC -m64 -pthread -fmessage-length=0 -fdebug-prefix-map=/tmp/go-build1824823233=/tmp/go-build -gno-record-gcc-switches"
 ```
 ```
-goos: darwin
+goos: linux
 goarch: amd64
-pkg: github.com/linxGnu/gumble/queue
-Benchmark_MutexLinkedQueue_50P50C-8            4         250396229 ns/op        32814560 B/op    1000050 allocs/op
-Benchmark_JDKLinkedQueue_50P50C-8             10         102264315 ns/op        32804635 B/op    1500015 allocs/op
-Benchmark_LFQueue_50P50C-8                     6         174677691 ns/op        72807312 B/op    1500039 allocs/op
-Benchmark_MutexLinkedQueue_50P10C-8            5         230457374 ns/op        32803932 B/op    1000015 allocs/op
-Benchmark_JDKLinkedQueue_50P10C-8             10         101427604 ns/op        32804708 B/op    1500023 allocs/op
-Benchmark_LFQueue_50P10C-8                     7         147318500 ns/op        72803601 B/op    1500018 allocs/op
-Benchmark_MutexLinkedQueue_10P50C-8            9         125443296 ns/op         7203642 B/op     200012 allocs/op
-Benchmark_JDKLinkedQueue_10P50C-8             62          19857979 ns/op         7203588 B/op     300010 allocs/op
-Benchmark_LFQueue_10P50C-8                    33          33143888 ns/op        15203620 B/op     300016 allocs/op
-Benchmark_MutexLinkedQueue_100P-8              5         233750795 ns/op        64001536 B/op    2000018 allocs/op
-Benchmark_JDKLinkedQueue_100P-8                8         138373969 ns/op        64000696 B/op    3000008 allocs/op
-Benchmark_LFQueue_100P-8                       5         246579063 ns/op        144000449 B/op   3000010 allocs/op
-Benchmark_MutexLinkedQueue_100C-8              6         187289416 ns/op        64000320 B/op    2000004 allocs/op
-Benchmark_JDKLinkedQueue_100C-8                9         117081262 ns/op        64000016 B/op    3000001 allocs/op
+pkg: git.linecorp.com/LINE-DevOps/go-utils.git/queue
+cpu: AMD Ryzen 9 3950X 16-Core Processor            
+PASS
+benchmark                              iter      time/iter      bytes alloc              allocs
+---------                              ----      ---------      -----------              ------
+Benchmark_MutexLinkedQueue_50P50C-32      2   557.08 ms/op    32036812 B/op   1000161 allocs/op
+Benchmark_JDKLinkedQueue_50P50C-32        4   250.64 ms/op    32029912 B/op   1500112 allocs/op
+Benchmark_LFQueue_50P50C-32               3   399.04 ms/op    68013296 B/op   1500068 allocs/op
+Benchmark_MutexLinkedQueue_50P10C-32      2   665.07 ms/op    32000572 B/op   1000011 allocs/op
+Benchmark_JDKLinkedQueue_50P10C-32        5   225.47 ms/op    32006699 B/op   1500042 allocs/op
+Benchmark_LFQueue_50P10C-32               3   386.33 ms/op    68003088 B/op   1500041 allocs/op
+Benchmark_MutexLinkedQueue_10P50C-32      7   162.23 ms/op     6400554 B/op    200010 allocs/op
+Benchmark_JDKLinkedQueue_10P50C-32       12    84.28 ms/op     6401472 B/op    300018 allocs/op
+Benchmark_LFQueue_10P50C-32              14    76.56 ms/op    13601710 B/op    300023 allocs/op
+Benchmark_MutexLinkedQueue_100P-32        3   459.11 ms/op    64000096 B/op   2000003 allocs/op
+Benchmark_JDKLinkedQueue_100P-32          2   574.58 ms/op    64000256 B/op   3000003 allocs/op
+Benchmark_LFQueue_100P-32                 3   377.33 ms/op   136001592 B/op   3000016 allocs/op
+Benchmark_MutexLinkedQueue_100C-32        3   390.75 ms/op    64004176 B/op   2000018 allocs/op
+Benchmark_JDKLinkedQueue_100C-32          4   298.37 ms/op    64000016 B/op   3000001 allocs/op
 ```
+

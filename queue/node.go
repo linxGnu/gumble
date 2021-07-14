@@ -15,6 +15,7 @@ func newLinkedListNode(v interface{}) *linkedListNode {
 	return &linkedListNode{
 		_v: v,
 		_i: unsafe.Pointer(&v),
+		_n: nil,
 	}
 }
 

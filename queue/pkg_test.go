@@ -4,6 +4,7 @@ import (
 	"context"
 	"sync"
 	"testing"
+	"time"
 )
 
 func testProducer(t *testing.T, queue Queue) {
@@ -55,13 +56,14 @@ func testProducer(t *testing.T, queue Queue) {
 func testMix(t *testing.T, q Queue, numberProducer, numberConsumer int) {
 	for i := 0; i < numberProducer; i++ {
 		go func(producer int) {
+			time.Sleep(100 * time.Millisecond)
 			for j := 0; j < numberEle; j++ {
 				q.Offer(&ele{key: producer, value: j})
 			}
 		}(i)
 	}
 
-	ch := make(chan *ele, 1000)
+	ch := make(chan *ele, 1)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	var wg sync.WaitGroup
@@ -75,13 +77,15 @@ func testMix(t *testing.T, q Queue, numberProducer, numberConsumer int) {
 		if polled := <-ch; polled == nil {
 			t.Fatal()
 		} else {
-			e := (*ele)(polled)
-			if _, ok := m[e.key]; !ok {
-				m[e.key] = make(map[int]struct{})
+			if _, ok := m[polled.key]; !ok {
+				m[polled.key] = make(map[int]struct{})
 			}
-			m[e.key][e.value] = struct{}{}
+			m[polled.key][polled.value] = struct{}{}
 		}
 	}
+
+	cancel()
+	wg.Wait()
 
 	for i := 0; i < numberProducer; i++ {
 		if len(m[i]) != numberEle {
@@ -94,9 +98,6 @@ func testMix(t *testing.T, q Queue, numberProducer, numberConsumer int) {
 			}
 		}
 	}
-
-	cancel()
-	wg.Wait()
 }
 
 func testConsumer(ctx context.Context, wg *sync.WaitGroup, q Queue, ch chan *ele) {

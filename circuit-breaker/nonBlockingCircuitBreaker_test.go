@@ -114,7 +114,7 @@ func TestNonBlockingCircuitBreaker_MoreSuccess(t *testing.T) {
 		go func() {
 			var count int64
 			for j := 0; j < 100000; j++ {
-				if _, err := nbc.Execute(context.Background(), func(ctx context.Context) (result interface{}, err error) {
+				if _, err := nbc.Execute(context.Background(), func(context.Context) (result interface{}, err error) {
 					if x := rand.Int() % 100000; x > 2000 {
 						err = nil
 					} else {
