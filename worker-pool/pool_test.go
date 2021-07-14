@@ -36,6 +36,7 @@ func TestNewPool(t *testing.T) {
 	}
 }
 
+//nolint
 func TestPool(t *testing.T) {
 	var taskCtx context.Context // nil context
 

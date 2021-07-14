@@ -156,7 +156,7 @@ func benchQueueMix(q Queue, numberProducer, numberConsumer int) {
 		}(i)
 	}
 
-	ch := make(chan *ele, 100000)
+	ch := make(chan *ele, 1)
 	var wg sync.WaitGroup
 	ctx, cancel := context.WithCancel(context.Background())
 
